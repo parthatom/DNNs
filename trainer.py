@@ -133,56 +133,27 @@
 #     pickle.dump(losses, f)
 
 import numbers
-import pickle
+import os
+import shutil
+from pathlib import Path
+import importlib
+import time
 
-# lr_list =[1e-3, 3*1e-3, 1e-2, 3*1e-2, 1e-1,3*1e-1]
+import re
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# for hid1 in hidl:
-#   for hid2 in hidl:
-#     for hid3 in hidl:
-# hid_list = [8,32, 16]
-lr_list = [0.001316, 0.00173, 0.003, 0.00547, 0.01]
-# lr_list =[1, 3, 10, 30]
-# lr_list = [ 0.003, 0.00547, 0.01, 0.03]
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+import scipy
+from scipy.io import loadmat
 
-dset = DataSet.dataset(data_path, normalized = True, suff = 'big_1_3')
-hidli = [32, 64, 128]
-hidll = [16,32]
-hidl = [ 32, 16, 8]
-# c = 0
+import sklearn
+from sklearn import svm, metrics
 
+import torch
+from torch import nn, optim
+from torch.nn import functional as F
 
-
-for hid1 in hidl:
-  for hid2 in hidl:
-    for hid3 in hidl:
-      for hid4 in hidl:
-        # for drop in range(2,10, 1):
-        # for hid5 in hidl:
-        #   for hid6 in hidl:
-        #     for hid7 in hidl:
-        #       for hid8 in hidl:
-        #         for hid9 in hidl:
-        hid_list = [hid1, hid2, hid3, hid4]
-        # if (str (hid_list) in st):
-        #   continue
-        # print(hid_list, end = " ")
-
-        # if (str (hid_list) not in st):
-        # for i in range(len(lr_list)-1):
-        lr = torch.zeros((1)).uniform_(lr_list[0], lr_list[-1]).item()
-        # lr = torch.zeros((1)).uniform_(lr_list[0], lr_list[-1]).item()
-        net = dnn(x_size = 37, hidden_list = hid_list, batch_norm = True, dropout_rate = 0.1)
-        net.to(device)
-        optimizer = optim.Adam(net.parameters(), lr=lr)
-
-        train_data,val_data = torch.utils.data.random_split(dset, lengths = [int (0.9*len(dset)),len(dset) - int (0.9*len(dset))])
-        dataloader = DataLoader(train_data, batch_size=1024,shuffle=True)
-        val_loader = DataLoader(val_data, batch_size=1024, shuffle=False)
-
-        epochs = 30
-        features_used = "x16+context"
 class Trainer(object):
     """docstring for Trainer."""
 
