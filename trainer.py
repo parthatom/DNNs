@@ -189,7 +189,7 @@ class Trainer(object):
         start_time = time.time()
         comments = ""
         for keys in self.net.kwargs:
-          comments += str (keys) + "=" + str (net.kwargs[keys]) + ","
+          comments += str (keys) + "=" + str (self.net.kwargs[keys]) + ","
 
         specifications = f'model=DNN,alpha={lr},epochs={epochs},batch_size={dataloader.batch_size},x_size={self.net.x_size},hidden={self.net.hidden_list},normalized={dataloader.dataset.dataset.normalized},{comments},{start_time}'
         print(f'Training started for {specifications}')
