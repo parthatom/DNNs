@@ -154,8 +154,8 @@ import torch
 from torch import nn, optim
 from torch.nn import functional as F
 
-import Logging
-from Logging import Logger
+import DNNs.Logging
+from DNNs.Logging import Logger
 
 class Trainer(object):
     """docstring for Trainer."""
@@ -183,7 +183,7 @@ class Trainer(object):
         self.acc_logger = None
         self.loss_logger = None
 
-    def train(self, epochs, dataloader, val_loader):
+    def train(self, epochs, dataloader, val_loader, transform = None):
         criterion = nn.NLLLoss()
         for param_group in self.optimizer.param_groups:
             lr = param_group['lr']
@@ -213,6 +213,9 @@ class Trainer(object):
                 c = data[1]
                 if (self.combine_x_c):
                     inputs = torch.cat([inputs, c], dim =1)
+                if (transform is not None):
+                  with torch.no_grad():
+                    inputs = transform (inputs)
                 labels = labels.long()
                 inputs = inputs.to(self.device)
                 labels = labels.to(self.device)
@@ -224,7 +227,7 @@ class Trainer(object):
                 loss = criterion(outputs, labels)
                 assert (self.net.training)
                 loss.backward()
-                optimizer.step()
+                self.optimizer.step()
                 # if (epoch%5==0):
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
@@ -257,9 +260,12 @@ class Trainer(object):
                 c = data[1]
                 if (self.combine_x_c):
                     inputs = torch.cat([inputs, c], dim =1)
+                if (transform is not None):
+                  with torch.no_grad():
+                    inputs = transform (inputs)
                 labels = labels.long()
-                inputs = inputs.to(device)
-                labels = labels.to(device)
+                inputs = inputs.to(self.device)
+                labels = labels.to(self.device)
 
                 outputs = self.net(inputs)
                 loss = criterion(outputs, labels)
@@ -286,7 +292,7 @@ class Trainer(object):
 
         self.loss_logger.save()
         self.acc_logger.save()
-        torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
+        torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
 
         self.logger = Logger.Logger(os.path.join(self.data_path, "dnn_log.csv"), create=False, verbose = False)
         self.logger.log('loss', epoch_loss)
@@ -296,11 +302,11 @@ class Trainer(object):
         self.logger.log('epochs', epochs)
         self.logger.log('alpha',lr)
         self.logger.log('hidden_dims', self.net.hidden_list)
-        self.logger.log('normalized', dataloader.dataset.dataset.normalized)
+        self.logger.log('normalized', float (dataloader.dataset.dataset.normalized))
         self.logger.log("batch_size", dataloader.batch_size)
         self.logger.log("comments", comments)
         self.logger.log("start_time", start_time)
-        self.logger.log("optimizer", type(optimizer).__name__)
+        self.logger.log("optimizer", type(self.optimizer).__name__)
         self.logger.log("dir_name", specifications)
         self.logger.log("loss_func", type(criterion).__name__)
         self.logger.log("features_used", features_used)
