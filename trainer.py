@@ -193,7 +193,7 @@ class Trainer(object):
         for keys in self.net.kwargs:
           comments += str (keys) + "=" + str (self.net.kwargs[keys]) + ","
 
-        specifications = f'model=DNN,alpha={lr},epochs={epochs},batch_size={dataloader.batch_size},x_size={self.net.x_size},hidden={self.net.hidden_list},normalized={dataloader.dataset.dataset.normalized},{comments},{start_time}'
+        specifications = f'model=DNN,alpha={lr:.4f},epochs={epochs},batch_size={dataloader.batch_size},x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},normalized={dataloader.dataset.dataset.normalized},{comments},{start_time}'
         print(f'Training started for {specifications}')
 
         os.mkdir(os.path.join(self.log_path, specifications))
