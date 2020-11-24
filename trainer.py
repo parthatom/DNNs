@@ -183,14 +183,13 @@ class Trainer(object):
         self.acc_logger = None
         self.loss_logger = None
 
-    def train(self, epochs, dataloader, val_loader, transform = None):
+    def train(self, epochs, dataloader, val_loader, transform = None, comments = ""):
         criterion = nn.NLLLoss()
         for param_group in self.optimizer.param_groups:
             lr = param_group['lr']
 
         features_used = "x" + str(self.x_size - (int(self.combine_x_c) * sum(self.c_size))) + int(self.combine_x_c) * "+context"
         start_time = time.time()
-        comments = ""
         for keys in self.net.kwargs:
           comments += str (keys) + "=" + str (self.net.kwargs[keys]) + ","
 
