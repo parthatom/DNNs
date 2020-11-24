@@ -291,6 +291,8 @@ class Trainer(object):
 
         self.loss_logger.save()
         self.acc_logger.save()
+        print(f"Final Training Accuracy:{accuracy:.2f}%")
+        print(f"Final Validation Accuracy:{val_accuracy:.2f}%")
         torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
 
         self.logger = Logger.Logger(os.path.join(self.data_path, "dnn_log.csv"), create=False, verbose = False)
