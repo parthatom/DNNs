@@ -195,9 +195,12 @@ class Trainer(object):
 
         specifications = f'model=DNN,alpha={lr:.4f},epochs={epochs},batch_size={dataloader.batch_size},x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},normalized={dataloader.dataset.dataset.normalized},{comments},{start_time}'
         print(f'Training started for {specifications}')
-
-        os.mkdir(os.path.join(self.log_path, specifications))
-
+        try:
+            os.mkdir(os.path.join(self.log_path, specifications))
+        except:
+            specifications = f'model=DNN,alpha={lr:.4f},x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},{comments},{start_time}'
+            print(f"Path too Long, renamed to {specifications}")
+            os.mkdir(os.path.join(self.log_path, specifications))
         self.loss_logger = Logger.Logger(os.path.join(self.log_path, specifications, "losses.csv"), create=True, verbose = False)
         self.acc_logger = Logger.Logger(os.path.join(self.log_path, specifications, "accuracies.csv"), create=True, verbose = False)
 
