@@ -198,7 +198,7 @@ class Trainer(object):
         try:
             os.mkdir(os.path.join(self.log_path, specifications))
         except:
-            specifications = f'model=DNN,alpha={lr:.4f},x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},{comments},{start_time}'
+            specifications = f'model=DNN,x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},{comments},{start_time}'
             print(f"Path too Long, renamed to {specifications}")
             os.mkdir(os.path.join(self.log_path, specifications))
         self.loss_logger = Logger.Logger(os.path.join(self.log_path, specifications, "losses.csv"), create=True, verbose = False)
