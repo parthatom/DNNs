@@ -224,23 +224,18 @@ class Trainer(object):
                 # zero the parameter gradients
                 self.optimizer.zero_grad()
 
-                # forward + backward + optimize
                 outputs = self.net(inputs)
                 loss = criterion(outputs, labels)
                 assert (self.net.training)
                 loss.backward()
                 self.optimizer.step()
-                # if (epoch%5==0):
+
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-                # print statistics
                 running_loss += loss.item()
-                # if i % 2000 == 1999:    # print every 2000 mini-batches
-                #     print('[%d, %5d] loss: %.3f' %
-                #           (epoch + 1, i + 1, running_loss / 2000))
-                #       running_loss = 0.0
+
             epoch_loss = running_loss/len(dataloader)
             self.loss_logger.log('loss',epoch_loss)
 
@@ -272,7 +267,6 @@ class Trainer(object):
                 outputs = self.net(inputs)
                 loss = criterion(outputs, labels)
 
-                # if (epoch%5==0):
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
