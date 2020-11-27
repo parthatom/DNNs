@@ -218,8 +218,8 @@ class Trainer(object):
                 if (transform is not None):
                   with torch.no_grad():
                     if (isinstance(transform, nn.Module)):
-                        transform.to(device)
-                        inputs = inputs.to(device)
+                        transform.to(self.device)
+                        inputs = inputs.to(self.device)
                     inputs = transform (inputs)
                 labels = labels.long()
                 inputs = inputs.to(self.device)
