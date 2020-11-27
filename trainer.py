@@ -303,16 +303,17 @@ class Trainer(object):
 
         self.loss_logger.save()
         self.acc_logger.save()
-        if (self.early_stopping < epochs):
-            final_accuracy =  max (self.acc_logger.df.Accuracy)
-            final_val_accuracy = max(self.acc_logger.df.val_accuracy)
+        if ((self.early_stopping > epochs) or (self.acc_logger.df.val_accuracy.astype(float).idxmax() < self.early_stopping)):
+            _i = self.acc_logger.df.val_accuracy.astype(float).idxmax()
+            final_accuracy =  self.acc_logger.df.Accuracy[_i]
+            final_val_accuracy = self.acc_logger.df.val_accuracy[_i]
         else:
             final_accuracy = accuracy
             final_val_accuracy = val_accuracy
 
         print(f"Final Training Accuracy:{final_accuracy:.2f}%")
         print(f"Final Validation Accuracy:{final_val_accuracy:.2f}%")
-        if (self.early_stopping > epochs):
+        if ((self.early_stopping > epochs) or (self.acc_logger.df.val_accuracy.astype(float).idxmax() < self.early_stopping)):
             torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
 
         self.logger = Logger.Logger(os.path.join(self.data_path, "dnn_log.csv"), create=False, verbose = False)
