@@ -262,6 +262,9 @@ class Trainer(object):
                     inputs = torch.cat([inputs, c], dim =1)
                 if (transform is not None):
                   with torch.no_grad():
+                    if (isinstance(transform, nn.Module)):
+                        transform.to(self.device)
+                        inputs = inputs.to(self.device)
                     inputs = transform (inputs)
                 labels = labels.long()
                 inputs = inputs.to(self.device)
