@@ -303,7 +303,7 @@ class Trainer(object):
 
         self.loss_logger.save()
         self.acc_logger.save()
-        if ((self.early_stopping > epochs) or (self.acc_logger.df.val_accuracy.astype(float).idxmax() < self.early_stopping)):
+        if ((self.early_stopping < epochs) and (self.acc_logger.df.val_accuracy.astype(float).idxmax() > self.early_stopping)):
             _i = self.acc_logger.df.val_accuracy.astype(float).idxmax()
             final_accuracy =  self.acc_logger.df.Accuracy[_i]
             final_val_accuracy = self.acc_logger.df.val_accuracy[_i]
@@ -333,4 +333,5 @@ class Trainer(object):
         self.logger.log("loss_func", type(criterion).__name__)
         self.logger.log("features_used", features_used)
         self.logger.log("early_stopping", self.early_stopping)
+        self.logger.log("max_epoch", self.acc_logger.df.val_accuracy.astype(float).idxmax())
         self.logger.save()
