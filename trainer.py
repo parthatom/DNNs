@@ -160,7 +160,7 @@ from DNNs.Logging import Logger
 class Trainer(object):
     """docstring for Trainer."""
 
-    def __init__(self, model, optimizer, sizes, device, log_path,data_path,viz_freq=10, model_spec="classifier", writing = True, combine_x_c = False):
+    def __init__(self, model, optimizer, sizes, device, log_path,data_path,viz_freq=10, model_spec="classifier", writing = True, combine_x_c = False, **kwargs):
         super(Trainer, self).__init__()
         self.net = model
         self.optimizer = optimizer
@@ -182,6 +182,13 @@ class Trainer(object):
         self.log_path = log_path
         self.acc_logger = None
         self.loss_logger = None
+        self.kwargs = kwargs
+
+        if ("early_stopping" in self.kwargs):
+            self.early_stopping = self.kwargs['early_stopping']
+        else:
+            self.early_stopping = np.inf
+
 
     def train(self, epochs, dataloader, val_loader, transform = None, comments = ""):
         criterion = nn.NLLLoss()
@@ -283,8 +290,10 @@ class Trainer(object):
               self.loss_logger.log('val_loss',val_loss)
 
               val_accuracy = 100*(correct/total)
+              if(epoch > self.early_stopping):
+                  if (val_accuracy > max (self.acc_logger.df.val_accuracy)):
+                      torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
               self.acc_logger.log("val_accuracy", val_accuracy)
-
               if (epoch%5==0):
                 print(f'Validation Loss: {val_loss:.2f}')
                 print(f"Validation Accuracy:{val_accuracy:.2f}%")
@@ -294,15 +303,23 @@ class Trainer(object):
 
         self.loss_logger.save()
         self.acc_logger.save()
-        print(f"Final Training Accuracy:{accuracy:.2f}%")
-        print(f"Final Validation Accuracy:{val_accuracy:.2f}%")
-        torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
+        if (self.early_stopping < epochs):
+            final_accuracy =  max (self.acc_logger.df.Accuracy)
+            final_val_accuracy = max(self.acc_logger.df.val_accuracy)
+        else:
+            final_accuracy = accuracy
+            final_val_accuracy = val_accuracy
+
+        print(f"Final Training Accuracy:{final_accuracy:.2f}%")
+        print(f"Final Validation Accuracy:{final_val_accuracy:.2f}%")
+        if (self.early_stopping > epochs):
+            torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
 
         self.logger = Logger.Logger(os.path.join(self.data_path, "dnn_log.csv"), create=False, verbose = False)
         self.logger.log('loss', epoch_loss)
         self.logger.log('val_loss', val_loss)
-        self.logger.log('Accuracy', accuracy)
-        self.logger.log('val_accuracy', val_accuracy)
+        self.logger.log('Accuracy', final_accuracy)
+        self.logger.log('val_accuracy', final_val_accuracy)
         self.logger.log('epochs', epochs)
         self.logger.log('alpha',lr)
         self.logger.log('hidden_dims', self.net.hidden_list)
@@ -314,4 +331,5 @@ class Trainer(object):
         self.logger.log("dir_name", specifications)
         self.logger.log("loss_func", type(criterion).__name__)
         self.logger.log("features_used", features_used)
+        self.logger.log("early_stopping", self.early_stopping)
         self.logger.save()
