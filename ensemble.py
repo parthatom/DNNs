@@ -1,3 +1,7 @@
+import torch
+from torch import nn, optim
+from torch.nn import functional as F
+
 class voting_classifier(nn.Module):
   def __init__(self, m1_list, transformer_list, hard_voting = False):
     super(voting_classifier, self).__init__()
