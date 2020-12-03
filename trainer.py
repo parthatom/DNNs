@@ -194,13 +194,17 @@ class Trainer(object):
         criterion = nn.NLLLoss()
         for param_group in self.optimizer.param_groups:
             lr = param_group['lr']
+        
+        dset = dataloader.dataset
+        while (type(dset).__name__ == "Subset"):
+            dset = dset.dataset
 
         features_used = "x" + str(self.x_size - (int(self.combine_x_c) * sum(self.c_size))) + int(self.combine_x_c) * "+context"
         start_time = time.time()
         for keys in self.net.kwargs:
           comments += str (keys) + "=" + str (self.net.kwargs[keys]) + ","
 
-        specifications = f'model=DNN,alpha={lr:.4f},epochs={epochs},batch_size={dataloader.batch_size},x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},normalized={dataloader.dataset.dataset.normalized},{comments},{start_time}'
+        specifications = f'model=DNN,alpha={lr:.4f},epochs={epochs},batch_size={dataloader.batch_size},x_size={self.net.x_size},hidden={",".join(list (map(str, self.net.hidden_list)))},normalized={dset.normalized},{comments},{start_time}'
         print(f'Training started for {specifications}')
         try:
             os.mkdir(os.path.join(self.log_path, specifications))
@@ -324,7 +328,7 @@ class Trainer(object):
         self.logger.log('epochs', epochs)
         self.logger.log('alpha',lr)
         self.logger.log('hidden_dims', self.net.hidden_list)
-        self.logger.log('normalized', float (dataloader.dataset.dataset.normalized))
+        self.logger.log('normalized', float (dset.normalized))
         self.logger.log("batch_size", dataloader.batch_size)
         self.logger.log("comments", comments)
         self.logger.log("start_time", start_time)
