@@ -166,7 +166,6 @@ class Trainer(object):
         self.optimizer = optimizer
         self.model_spec = model_spec
         assert (self.model_spec == "classifier" or self.model_spec == "regressor")
-        self.z_size = sizes['z']
         self.c_size = sizes['c']
         self.x_size = sizes['x']
         self.device = device
@@ -190,11 +189,11 @@ class Trainer(object):
             self.early_stopping = np.inf
 
 
-    def train(self, epochs, dataloader, val_loader, transform = None, comments = ""):
+    def train(self, epochs, dataloader, val_loader, transform = None, comments = "", x_index = 0, y_index = 2):
         criterion = nn.NLLLoss()
         for param_group in self.optimizer.param_groups:
             lr = param_group['lr']
-        
+
         dset = dataloader.dataset
         while (type(dset).__name__ == "Subset"):
             dset = dset.dataset
@@ -222,7 +221,7 @@ class Trainer(object):
             correct = 0.0
             total = 0.0
             for i, data in enumerate(dataloader, 0):
-                inputs, labels = data[0], data[2]
+                inputs, labels = data[x_index], data[y_index]
                 c = data[1]
                 if (self.combine_x_c):
                     inputs = torch.cat([inputs, c], dim =1)
@@ -267,7 +266,7 @@ class Trainer(object):
               correct = 0.0
               total = 0.0
               for i, data in enumerate(val_loader, 0):
-                inputs, labels = data[0], data[2]
+                inputs, labels = data[x_index], data[y_index]
                 c = data[1]
                 if (self.combine_x_c):
                     inputs = torch.cat([inputs, c], dim =1)
