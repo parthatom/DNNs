@@ -3,6 +3,8 @@ import numbers
 import numpy as np
 import pandas as pd
 
+import torch
+
 class Logger():
   def __init__(self, df_path, create = False, **kwargs):
     """
@@ -37,6 +39,9 @@ class Logger():
     self.write_df(key, value, self.ind)
 
   def write_df(self, key, value, ind):
+    if isinstance(value, torch.Tensor):
+        value = value.detach().cpu().item()
+
     if not key in self.df:
       if (self.verbose):
         print(key, "not in DataFrame, column has been added")
