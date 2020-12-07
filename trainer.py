@@ -337,4 +337,5 @@ class Trainer(object):
         self.logger.log("features_used", features_used)
         self.logger.log("early_stopping", self.early_stopping)
         self.logger.log("max_epoch", self.acc_logger.df.val_accuracy.astype(float).idxmax())
+        self.logger.log("num_classes", self.net.num_classes)
         self.logger.save()
