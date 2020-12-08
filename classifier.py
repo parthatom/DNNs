@@ -18,6 +18,11 @@ class dnn(nn.Module):
     else:
       self.dropout_rate = 0.0
 
+    if ("last_batch_norm" in self.kwargs):
+        self.last_batch_norm = self.kwargs['last_batch_norm']
+    else:
+        self.last_batch_norm = True
+
     dnn_list = []
     prev = self.x_size
     for hid in hidden_list:
@@ -29,7 +34,7 @@ class dnn(nn.Module):
       prev = hid
 
     dnn_list.append(nn.Linear(prev,self.num_classes))
-    if (self.batch_norm):
+    if (self.batch_norm and self.last_batch_norm):
       dnn_list.append(nn.BatchNorm1d(self.num_classes))
     dnn_list.append(nn.LogSoftmax(dim= 1))
 
