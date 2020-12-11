@@ -8,7 +8,7 @@ from DNNs import classifier
 
 class model_loading():
   def __init__(self, log_path, x_size = 37):
-    self.x_size = x_size
+    self.x_size = int (x_size)
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     self.log_path = log_path
 
@@ -23,6 +23,6 @@ class model_loading():
     else:
       print ("failed to Load DNN, path doesn't exist")
       return None
-    m1 = classifier.dnn(x_size = self.x_size, hidden_list=hidden_list, num_classes = row['num_classes'], batch_norm = True, dropout_rate = 0.1)
+    m1 = classifier.dnn(x_size = self.x_size, hidden_list=hidden_list, num_classes = int (row['num_classes']), batch_norm = True, dropout_rate = 0.1)
     m1.load_state_dict(checkpoint['model_state_dict'])
     return m1
