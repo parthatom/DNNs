@@ -23,6 +23,10 @@ class model_loading():
     else:
       print ("failed to Load DNN, path doesn't exist")
       return None
-    m1 = classifier.dnn(x_size = self.x_size, hidden_list=hidden_list, num_classes = int (row['num_classes']), batch_norm = True, dropout_rate = 0.1)
-    m1.load_state_dict(checkpoint['model_state_dict'])
-    return m1
+    self.m1 = classifier.dnn(x_size = self.x_size,
+                              hidden_list=hidden_list,
+                              num_classes = int (row['num_classes']),
+                              batch_norm = True, dropout_rate = 0.1,
+                              last_batch_norm = row['last_batch_norm'] == "True")
+    self.m1.load_state_dict(checkpoint['model_state_dict'])
+    return self.m1
