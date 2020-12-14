@@ -54,7 +54,7 @@ class voting_classifier(nn.Module):
         return a
 
 class stacking_classifier_dnn(nn.Module):
-    def __int__(self, m1_list, transformer_list = None, num_classes = 2, hidden_list = []):
+    def __init__(self, m1_list, transformer_list = None, num_classes = 2, hidden_list = []):
         """
         Stacking classifier
         ---
@@ -86,7 +86,7 @@ class stacking_classifier_dnn(nn.Module):
             if (len (transformer_list) == len(self.m1_list)):
                 self.transformer_list = transformer_list
             else:
-                raise ValueError("Lenght of lists dont match")
+                raise ValueError("Length of lists dont match")
         elif transformer_list is None:
             self.transformer_list = [None] * len(self.m1_list)
         else:
