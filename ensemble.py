@@ -40,9 +40,9 @@ class voting_classifier(nn.Module):
           t = self.transformer_list[i]
 
           if (t is not None):
-            b = F.softmax( m (t(x)), dim = 1)
+            b =  m (t(x))
           else:
-            b = F.softmax( m(x), dim = 1)
+            b = m(x)
           if (self.hard_voting):
             b = (b>0.5).double()
 
