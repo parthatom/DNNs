@@ -373,4 +373,4 @@ class Trainer(object):
         torch.save({'model_state_dict':self.net.state_dict(), 'optimizer_state_dict' : self.optimizer.state_dict()} , os.path.join(self.log_path, specifications, "model_optimizer_statae_dict.pt") )
 
         if (self.transform_grad):
-            torch.save('transform_state_dict':self.transform.state_dict(), os.path.join(self.log_path, specifications, "transform_statae_dict.pt") )
+            torch.save({'transform_state_dict':self.transform.state_dict()}, os.path.join(self.log_path, specifications, "transform_statae_dict.pt") )
