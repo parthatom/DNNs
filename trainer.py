@@ -160,7 +160,13 @@ from DNNs.Logging import Logger
 class Trainer(object):
     """docstring for Trainer."""
 
-    def __init__(self, model, optimizer, sizes, device, log_path,data_path,viz_freq=10, model_spec="classifier", writing = True, combine_x_c = False, **kwargs):
+    def __init__(self, model, optimizer,
+                       sizes, device,
+                       log_path,data_path,
+                       viz_freq=10,
+                       model_spec="classifier",
+                       writing = True, combine_x_c = False,
+                       **kwargs):
         super(Trainer, self).__init__()
         self.net = model
         self.optimizer = optimizer
@@ -188,8 +194,23 @@ class Trainer(object):
         else:
             self.early_stopping = np.inf
 
+        if ("transform_grad" in self.kwargs):
+            self.transform_grad = self.kwargs['transform_grad']
+        else:
+            self.transform_grad = False
 
-    def train(self, epochs, dataloader, val_loader, transform = None, comments = "", x_index = 0, y_index = 2):
+    def train(self, epochs,
+                    dataloader, val_loader,
+                    transform = None,
+                    comments = "",
+                    x_index = 0, y_index = 2):
+
+        if (self.transform_grad):
+            if (isinstance(transform, nn.Module)):
+                transform.to(self.device)
+            else:
+                raise TypeError(f"Transformer must be an instance of nn.Module to calculate gradients, instead found {type(transform).__name__}")
+
         criterion = nn.NLLLoss()
         for param_group in self.optimizer.param_groups:
             lr = param_group['lr']
@@ -225,12 +246,17 @@ class Trainer(object):
                 c = data[1]
                 if (self.combine_x_c):
                     inputs = torch.cat([inputs, c], dim =1)
+
                 if (transform is not None):
-                  with torch.no_grad():
-                    if (isinstance(transform, nn.Module)):
-                        transform.to(self.device)
+                  if (isinstance(transform, nn.Module)):
                         inputs = inputs.to(self.device)
-                    inputs = transform (inputs)
+
+                  if (self.transform_grad):
+                      inputs = transform (inputs)
+                  else:
+                      with torch.no_grad():
+                          inputs = transform (inputs)
+
                 labels = labels.long()
                 inputs = inputs.to(self.device)
                 labels = labels.to(self.device)
@@ -271,9 +297,7 @@ class Trainer(object):
                 if (self.combine_x_c):
                     inputs = torch.cat([inputs, c], dim =1)
                 if (transform is not None):
-                  with torch.no_grad():
                     if (isinstance(transform, nn.Module)):
-                        transform.to(self.device)
                         inputs = inputs.to(self.device)
                     inputs = transform (inputs)
                 labels = labels.long()
@@ -339,4 +363,5 @@ class Trainer(object):
         self.logger.log("max_epoch", self.acc_logger.df.val_accuracy.astype(float).idxmax())
         self.logger.log("num_classes", self.net.num_classes)
         self.logger.log("weight_decay", self.optimizer.param_groups[0]['weight_decay'])
+        self.logger.log("transform_grad", self.transform_grad)
         self.logger.save()
