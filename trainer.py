@@ -363,5 +363,5 @@ class Trainer(object):
         self.logger.log("max_epoch", self.acc_logger.df.val_accuracy.astype(float).idxmax())
         self.logger.log("num_classes", self.net.num_classes)
         self.logger.log("weight_decay", self.optimizer.param_groups[0]['weight_decay'])
-        self.logger.log("transform_grad", self.transform_grad)
+        self.logger.log("transform_grad", float (self.transform_grad))
         self.logger.save()
